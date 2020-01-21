@@ -1,7 +1,6 @@
 import kopf
 import kubernetes
-
-import k8soperator.webserver.webserver_factory as ws_factory
+from k8soperator.webserver.webserver_factory import create_web_server
 
 RESOURCE_GROUP_NAME = "example.org"
 RESOURCE_VERSION = "v1"
@@ -9,36 +8,36 @@ RESOURCE_TYPE = "webservers"
 
 
 @kopf.on.create(RESOURCE_GROUP_NAME, RESOURCE_VERSION, RESOURCE_TYPE)
-def create_webserver(body, spec, logger, **kwargs):
+def create_web_server_custom_resource(body, spec, logger, **kwargs):
     logger.debug(body)
     logger.debug(spec)
 
-    name = body['metadata']['name']
-    namespace = body['metadata']['namespace']
+    name, namespace = body['metadata']['name'], body['metadata']['namespace']
 
-    create_k8s_objects(namespace, ws_factory.WebserverFactory.create_webserver(spec['type'], name), body)
+    web_server = create_web_server(spec['type'], name)
+    link_to_parent(web_server, web_server_base_object=body)
+    create_k8s_objects(namespace, web_server, logger)
 
-    # Update status
-    msg = f"Pod and Service created for webserver {name}"
-    return {'message': msg}
+    return {'message': f"Pod and Service created for web server {name}"}
 
 
 @kopf.on.delete(RESOURCE_GROUP_NAME, RESOURCE_VERSION, RESOURCE_TYPE)
-def delete(body, **kwargs):
-    msg = f'Database {body["metadata"]["name"]} and its Pod / Service children deleted'
-    return {'message': msg}
+def delete_web_server_custom_resource(body, logger, **kwargs):
+    message = f'Web server {body["metadata"]["name"]} and its Pod / Service children deleted'
+    logger.info(message)
+    return {'message': message}
 
 
-def create_k8s_objects(namespace, webserver, webserver_definition):
-    # Make the Pod and Service the children of the Database object
-    kopf.adopt(webserver.pod, owner=webserver_definition)
-    kopf.adopt(webserver.svc, owner=webserver_definition)
+def link_to_parent(web_server, web_server_base_object):
+    kopf.adopt(web_server.pod, owner=web_server_base_object)
+    kopf.adopt(web_server.svc, owner=web_server_base_object)
 
-    # Object used to communicate with the API Server
+
+def create_k8s_objects(namespace, web_server, logger):
     api = kubernetes.client.CoreV1Api()
-    # Create Pod
-    obj = api.create_namespaced_pod(namespace, webserver.pod)
-    print(f"Pod {obj.metadata.name} created")
-    # Create Service
-    obj = api.create_namespaced_service(namespace, webserver.svc)
-    print(f"Service {obj.metadata.name} created")
+
+    obj = api.create_namespaced_pod(namespace, web_server.pod)
+    logger.info(f"Pod {obj.metadata.name} created")
+
+    obj = api.create_namespaced_service(namespace, web_server.svc)
+    logger.info(f"Service {obj.metadata.name} created")

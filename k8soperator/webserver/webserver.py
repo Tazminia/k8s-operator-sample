@@ -1,3 +1,6 @@
+APPLICATION = 'web-server'
+
+
 class Webserver:
     def __init__(self, name, port, server_type, image):
         self._port = port
@@ -5,7 +8,7 @@ class Webserver:
         self._image = image
         self._pod = {
             'apiVersion': 'v1',
-            'metadata': {'name': name, 'labels': {'app': 'webserver', 'servertype': self._server_type}},
+            'metadata': {'name': name, 'labels': {'application': APPLICATION, 'type': self._server_type}},
             'spec':
             {
                 'containers':
@@ -19,7 +22,7 @@ class Webserver:
             'apiVersion': 'v1',
             'metadata': {'name': name},
             'spec': {
-                'selector': {'app': 'webserver', 'servertype': self._server_type},
+                'selector': {'application': APPLICATION, 'type': self._server_type},
                 'type': 'ClusterIP',
                 'ports': [{'port': port, 'targetPort': port}]
             }

@@ -7,7 +7,7 @@ __servers_conf = {
 }
 
 
-def create_webserver(server_type, name):
+def create_web_server(server_type, name):
     if server_type in __servers_conf:
         port, image = __servers_conf[server_type]
         return Webserver(name, port, server_type, image)
