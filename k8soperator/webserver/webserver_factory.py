@@ -12,5 +12,4 @@ def create_webserver(server_type, name):
         port, image = __servers_conf[server_type]
         return Webserver(name, port, server_type, image)
 
-    raise kopf.HandlerFatalError(f"Type must be one of {__servers_conf.keys()}")
-
+    raise kopf.HandlerFatalError(f"Type must be one of {list(__servers_conf.keys())}")
