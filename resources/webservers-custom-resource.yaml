@@ -1,0 +1,26 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: webservers.example.org
+spec:
+  scope: Namespaced
+  group: example.org
+  versions:
+    - name: v1
+      served: true
+      storage: true
+  names:
+    kind: Webserver
+    plural: webservers
+    singular: webserver
+    shortNames:
+      - websrv
+      - websrvs
+  additionalPrinterColumns:
+    - name: Type
+      type: string
+      priority: 0
+      JSONPath: .spec.type
+      description: The type of the webserver
+
+#az aks create --subscription ${SUBSCRIPTION} --resource-group ${RESOURCE_GROUP} --name ${CLUSTER} --location francecentral  --node-count 1 --node-vm-size Standard_B2ms --kubernetes-version 1.14.8 --vm-set-type AvailabilitySet --service-principal "6279b179-ae61-491d-9058-a43bf40a112b" --client-secret "8b89281d-52f1-42be-b00d-b83f1423e28d"

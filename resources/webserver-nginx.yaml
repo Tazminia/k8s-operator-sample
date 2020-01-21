@@ -1,0 +1,6 @@
+apiVersion: example.org/v1
+kind: Webserver
+metadata:
+  name: nginx-ws
+spec:
+  type: nginx

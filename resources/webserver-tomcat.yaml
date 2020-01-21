@@ -1,0 +1,6 @@
+apiVersion: example.org/v1
+kind: Webserver
+metadata:
+  name: apache-tomcat-ws
+spec:
+  type: apache

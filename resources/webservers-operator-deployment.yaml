@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webserver-operator
+spec:
+  selector:
+    matchLabels:
+      app: webserver-operator
+  template:
+    metadata:
+      labels:
+        app: webserver-operator
+    spec:
+      serviceAccountName: webserver-operator
+      containers:
+      - image: tazminia/webserver:latest
+        name: webserver-operator
+        imagePullPolicy: Always
