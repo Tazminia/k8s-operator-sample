@@ -1,17 +1,16 @@
 import kopf
+from k8soperator.webserver.webserver import Webserver
 
-from k8soperator.webserver.apache import Apache
-from k8soperator.webserver.nginx import Nginx
+__servers_conf = {
+    'apache': (8080, 'tomcat:jdk8-adoptopenjdk-openj9'),
+    'nginx': (80, 'nginx:stable')
+}
 
 
-class WebserverFactory:
-    SUPPORTED_SERVER_TYPES = ["apache", "nginx"]
+def create_webserver(server_type, name):
+    if server_type in __servers_conf:
+        port, image = __servers_conf[server_type]
+        return Webserver(name, port, server_type, image)
 
-    @staticmethod
-    def create_webserver(server_type, name):
-        if server_type not in WebserverFactory.SUPPORTED_SERVER_TYPES:
-            raise kopf.HandlerFatalError(f"Type must be one of {WebserverFactory.SUPPORTED_SERVER_TYPES}")
-        if 'apache' == server_type:
-            return Apache(name)
-        if 'nginx' == server_type:
-            return Nginx(name)
+    raise kopf.HandlerFatalError(f"Type must be one of {__servers_conf.keys()}")
+
